@@ -1,0 +1,84 @@
+import sqlite3
+conn = sqlite3.connect('faculdade.db')
+cursor = conn.cursor()
+
+cursor.execute('''CREATE TABLE IF NOT EXISTS Professor (
+                    id INTEGER PRIMARY KEY,
+                    nome TEXT,
+                    departamento TEXT,
+                    email TEXT
+                )''')
+
+def consultar_professor():
+    id_professor = input("Digite o ID do professor: ")
+    cursor.execute("SELECT * FROM Professor WHERE id=?", (id_professor,))
+    professor = cursor.fetchone()
+
+    if professor:
+        print("Dados do professor:")
+        print(f"ID: {professor[0]}")
+        print(f"Nome: {professor[1]}")
+        print(f"Departamento: {professor[2]}")
+        print(f"E-mail: {professor[3]}")
+    else:
+        print("Professor não encontrado.")
+
+def consultar_departamento():
+    codigo_departamento = input("Digite o código do departamento: ")
+    cursor.execute("SELECT * FROM Professor WHERE departamento=?", (codigo_departamento,))
+    professores = cursor.fetchall()
+
+    if professores:
+        print(f"Professores do departamento {codigo_departamento}:")
+        for professor in professores:
+            print(f"ID: {professor[0]}, Nome: {professor[1]}, E-mail: {professor[3]}")
+    else:
+        print("Departamento não encontrado ou sem professores associados.")
+def cadastrar_professor():
+    nome = input("Digite o nome do professor: ")
+    departamento = input("Digite o departamento do professor: ")
+    email = input("Digite o e-mail do professor: ")
+
+    cursor.execute("INSERT INTO Professor (nome, departamento, email) VALUES (?, ?, ?)",
+                   (nome, departamento, email))
+    conn.commit()
+    print("Professor cadastrado com sucesso.")
+
+def gravar_relatorio():
+    cursor.execute("SELECT * FROM Professor")
+    professores = cursor.fetchall()
+
+    with open("relProfessores.txt", "w") as arquivo:
+        arquivo.write("Relatório de Professores\n\n")
+        for professor in professores:
+            arquivo.write(f"ID: {professor[0]}\n")
+            arquivo.write(f"Nome: {professor[1]}\n")
+            arquivo.write(f"Departamento: {professor[2]}\n")
+            arquivo.write(f"E-mail: {professor[3]}\n")
+            arquivo.write("\n")
+
+    print("Relatório gravado com sucesso.")
+
+while True:
+    print("\n===== Menu de Acesso =====")
+    print("1. Consultar Professor")
+    print("2. Consultar Departamento")
+    print("3. Cadastrar Professor")
+    print("4. Gravar Relatório de Professores")
+    print("0. Sair")
+
+    opcao = input("Digite a opção desejada: ")
+
+    if opcao == "1":
+        consultar_professor()
+    elif opcao == "2":
+        consultar_departamento()
+    elif opcao == "3":
+        cadastrar_professor()
+    elif opcao == "4":
+        gravar_relatorio()
+    elif opcao == "0":
+        break
+    else:
+        print("Opção inválida.")
+
